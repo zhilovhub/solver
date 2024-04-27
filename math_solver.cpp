@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <ctime>
+#include <fstream>
+#include <filesystem>
 
 using namespace std;
 
@@ -20,13 +22,22 @@ class InstructionsExporterImpl : public InstructionsExporter {
             return string(current_time_string) + ".txt";
         }
 
-        void write_text_to_file() {
-            cout << "wrote .... to " << generate_file_name() << endl;
+        void write_text_to_file(string filename) {
+            if (!filesystem::exists(instuctions_directory)) {
+                filesystem::create_directory(instuctions_directory);
+            }
+            
+            ofstream file;
+            file.open(instuctions_directory + "/" + filename);
+            file << "instructions\n";
+            file.close();
         }
 
     public:
+        const string instuctions_directory = "./instuctions";
+
         void export_instructions() override {
-            write_text_to_file();
+            write_text_to_file(generate_file_name());
         };
 };
 
