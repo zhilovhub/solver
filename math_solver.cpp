@@ -34,7 +34,7 @@ class InstructionsExporterImpl : public InstructionsExporter {
         }
 
     public:
-        const string instuctions_directory = "./instuctions";
+        const string instuctions_directory = "./instructions";
 
         void export_instructions() override {
             write_text_to_file(generate_file_name());
@@ -63,7 +63,15 @@ class EquationSolver {
 
 int main()
 {
-    cout << __cplusplus << endl;
+    int a, b, c;
+
+    cout << "Enter the coefficients of the equation in format: a b c: ";
+    cin >> a >> b >> c;
+
+    char buff[100];
+    sprintf(buff, "Your equation is: %dx² + %dx + %d = 0", a, b, c);
+    cout << buff << endl;
+
     InstructionsExporterImpl* exporter = new InstructionsExporterImpl();
     EquationSolver solver(1, 2, -3, exporter);
     solver.test_method();
