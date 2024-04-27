@@ -1,6 +1,6 @@
-﻿#include <iostream>
+#include <iostream>
 #include <string>
-#include <chrono>
+#include <ctime>
 
 using namespace std;
 
@@ -14,11 +14,10 @@ class InstructionsExporter {
 class InstructionsExporterImpl : public InstructionsExporter {
     private:
         string generate_file_name() {
-            chrono::system_clock::time_point p = chrono::system_clock::now();
-            time_t t = chrono::system_clock::to_time_t(p);
-            char str[26];
-            ctime_s(str, sizeof str, &t);
-            return str;
+            time_t current_time = time({});
+            char current_time_string[size("yyyy_mm_ddThh_mm_ss")];
+            strftime(data(current_time_string), size(current_time_string), "%Y_%m_%dT%H%M%S", gmtime(&current_time));
+            return string(current_time_string) + ".txt";
         }
 
         void write_text_to_file() {
