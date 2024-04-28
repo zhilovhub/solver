@@ -254,9 +254,20 @@ int main()
     // testEquationSolver();
 
     float a, b, c;
+    
+    while (true) {
+        cout << "Enter the coefficients of the equation in format: a b c: ";
 
-    cout << "Enter the coefficients of the equation in format: a b c: ";
-    cin >> a >> b >> c;
+        cin >> a >> b >> c;
+        if (cin.good() == false) {
+            cout << "WRONG: you must enter three int or float numbers" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+        break;
+    }
+    
 
 
     InstructionsExporterImpl* exporter = new InstructionsExporterImpl();
@@ -296,4 +307,6 @@ int main()
     if (need_calculation == true) {
         solver.export_instructions();
     }
+
+    return 0;
 }
