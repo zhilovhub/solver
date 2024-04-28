@@ -25,7 +25,7 @@ class InstructionsExporterImpl : public InstructionsExporter {
         string generate_file_name() {
             time_t current_time = time({});
             char current_time_string[size("yyyy_mm_ddThh_mm_ss")];
-            strftime(data(current_time_string), size(current_time_string), "%Y_%m_%.3fT%H%M%S", gmtime(&current_time));
+            strftime(data(current_time_string), size(current_time_string), "%Y_%m_%dT%H%M%S", gmtime(&current_time));
 
             return string(current_time_string) + ".txt";
         }
@@ -99,8 +99,9 @@ class EquationSolver {
                 sprintf(equation_string, "Your equation is: %.3fx² + %.3fx + %.3f = 0", a, b, c);
             }
 
+
             cout << equation_string << endl;
-            exporter -> write_text_to_temp_file(equation_string);
+            exporter->write_text_to_temp_file(equation_string + string("\n\n"));
 
             map<string, float> solutions;
 
@@ -130,16 +131,15 @@ class EquationSolver {
             solutions["D"] = D;
 
             char calculating_D_step_string[100];
-            sprintf(calculating_D_step_string, "Calculating Discriminant by D = b² - 4ac:\nD = (%.3f)² - 4 * (%.3f) * (%.3f) = %.3f", b, a, c, D);
+            sprintf(calculating_D_step_string, "Calculating Discriminant by D = b² - 4ac:\nD = (%.3f)² - 4 * (%.3f) * (%.3f) = %.3f\n\n", b, a, c, D);
 
-            cout << calculating_D_step_string << endl;
             exporter -> write_text_to_temp_file(calculating_D_step_string);
 
             string D_analysis_step_string;
             char calculation_solutions_step_string[300];
 
             if (D > 0) {
-                D_analysis_step_string = "The D of the equation is greater than 0. There are two solutions\n";
+                D_analysis_step_string = "The D of the equation is greater than 0. There are two solutions";
                 
                 float D_sqrt = sqrt(D);
 
@@ -150,11 +150,10 @@ class EquationSolver {
                 solutions["x1"] = x1;
                 solutions["x2"] = x2;
 
-                sprintf(calculation_solutions_step_string, "Calculating one solution by x = (-b + √D) / (2a):\nx = -(%.3f + √%.3f) / (2 * (%.3f)) = %.3f\n\n \
-                Calculating another solution by x = (-b - √D) / (2a):\nx = -(%.3f - √%.3f) / (2 * (%.3f)) = %.3f", b, D, a, x1, b, D, a, x2);
+                sprintf(calculation_solutions_step_string, "Calculating one solution by x = (-b + √D) / (2a):\nx = -(%.3f + √%.3f) / (2 * (%.3f)) = %.3f\n\nCalculating another solution by x = (-b - √D) / (2a):\nx = -(%.3f - √%.3f) / (2 * (%.3f)) = %.3f", b, D, a, x1, b, D, a, x2);
 
             } else if (D == 0) {
-                D_analysis_step_string = "The D of the equation equals 0. There is one solution\n";
+                D_analysis_step_string = "The D of the equation equals 0. There is one solution";
 
                 float x = -b / (2 * a);
 
@@ -164,7 +163,7 @@ class EquationSolver {
                 sprintf(calculation_solutions_step_string, "Calculating that one solution by x = (-b) / (2a):\nx = -(%.3f) / (2 * (%.3f))", b, a);
 
             } else {
-                D_analysis_step_string = "The D of the equation is lower than 0. There are no real solutions\n";
+                D_analysis_step_string = "The D of the equation is lower than 0. There are no real solutions";
 
                 solutions["solutions_count"] = 0;
 
@@ -172,7 +171,7 @@ class EquationSolver {
 
             }
 
-            exporter -> write_text_to_temp_file(D_analysis_step_string);
+            exporter -> write_text_to_temp_file(D_analysis_step_string + string("\n\n"));
             exporter -> write_text_to_temp_file(calculation_solutions_step_string);
 
             
