@@ -130,6 +130,7 @@ class EquationSolver {
             
 
             float D = pow(b, 2) - 4 * a * c;
+            solutions["D"] = D;
 
             char calculating_D_step_string[100];
             sprintf(calculating_D_step_string, "Calculating Discriminant by D = b² - 4ac:\nD = (%.3f)² - 4 * (%.3f) * (%.3f) = %.3f", b, a, c, D);
@@ -252,20 +253,46 @@ void testEquationSolver() {
 }
 
 
-
 int main()
 {
-    testEquationSolver();
+    // testEquationSolver();
+
     float a, b, c;
 
-    // cout << "Enter the coefficients of the equation in format: a b c: ";
-    // cin >> a >> b >> c;
+    cout << "Enter the coefficients of the equation in format: a b c: ";
+    cin >> a >> b >> c;
 
 
-    // InstructionsExporterImpl* exporter = new InstructionsExporterImpl();
-    // EquationSolver solver(a, b, c, exporter);
+    InstructionsExporterImpl* exporter = new InstructionsExporterImpl();
+    EquationSolver solver(a, b, c, exporter);
 
-    // map<string, float> solutions = solver.solve();
-    // cout << solutions["solutions_count"]  << solutions["x1"]  << solutions["x2"] << endl;
+    map<string, float> solutions = solver.solve();
+
+    float solutions_count = solutions["solutions_count"];
+    const string x = "x";
+    const string x1 = "x1";
+    const string x2 = "x2";
+    const string D = "D";
+
+    if (solutions_count == 0) {
+        cout << "There are no real solutions" << endl;
+        if (solutions.find(D) != solutions.end()) {
+            cout << "Discriminant was " << solutions[D] << endl;
+        }
+    } else if (solutions_count == 1) {
+        cout << "x = " << solutions[x] << endl;
+        if (solutions.find(D) != solutions.end()) {
+            cout << "Discriminant was " << solutions[D] << endl;
+        }
+    } else if (solutions_count == 2) {
+        cout << "x1 = " << solutions[x1] << endl;
+        cout << "x2 = " << solutions[x2] << endl;
+        cout << "Discriminant was " << solutions[D] << endl;
+    } else if (solutions_count == numeric_limits<float>::infinity()) {
+        cout << "There are infinity solutions" << endl;
+    }
+
+
+
     // solver.export_instructions();
 }
