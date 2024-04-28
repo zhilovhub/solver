@@ -80,7 +80,7 @@ class EquationSolver {
             this->exporter = exporter;
         }
 
-        map<string, int> solve() {
+        map<string, float> solve() {
             char buff[100];
             if (a == 0 && b == 0 && c == 0) {
                 sprintf(buff, "Your equation is: 0 = 0");
@@ -107,23 +107,54 @@ class EquationSolver {
             int D = pow(b, 2) - 4 * a * c;
 
             char calculating_D_step_string[100];
-            sprintf(calculating_D_step_string, "Calculation Discriminant by D = b² - 4ac:\nD = (%d)² - 4 * (%d) * (%d) = %d", b, a, c, D);
+            sprintf(calculating_D_step_string, "Calculating Discriminant by D = b² - 4ac:\nD = (%d)² - 4 * (%d) * (%d) = %d", b, a, c, D);
 
             cout << calculating_D_step_string << endl;
             exporter -> write_text_to_temp_file(calculating_D_step_string);
 
-            string D_analysis_step;
-            if (D > 0) {
-                D_analysis_step = "The D of the equation is greater than 0. There are two solutions\n";
-            } else if (D == 0) {
-                D_analysis_step = "The D of the equation equals 0. There is one solution\n";
-            } else {
-                D_analysis_step = "The D of the equation is lower than 0. There are no real solutions\n";
-            }
-            exporter -> write_text_to_temp_file(D_analysis_step);
+            string D_analysis_step_string;
+            char calculation_solutions_step_string[300];
 
-            map<string, int> result;
-            return result;      
+            map<string, float> solutions;
+            if (D > 0) {
+                D_analysis_step_string = "The D of the equation is greater than 0. There are two solutions\n";
+                
+                float D_sqrt = sqrt(D);
+
+                float x1 = (-b + D_sqrt) / (2 * a);
+                float x2 = (-b - D_sqrt) / (2 * a);
+
+                solutions["solutions_count"] = 2;
+                solutions["x1"] = x1;
+                solutions["x2"] = x2;
+
+                sprintf(calculation_solutions_step_string, "Calculating one solution by x = (-b + √D) / (2a):\nx = -(%d + √%d) / (2 * (%d)) = %d\n\n \
+                Calculating another solution by x = (-b - √D) / (2a):\nx = -(%d - √%d) / (2 * (%d)) = %d", b, D, a, x1, b, D, a, x2);
+
+            } else if (D == 0) {
+                D_analysis_step_string = "The D of the equation equals 0. There is one solution\n";
+
+                float x = -b / (2 * a);
+
+                solutions["solutions_count"] = 1;
+                solutions["x"] = x;
+
+                sprintf(calculation_solutions_step_string, "Calculating that one solution by x = (-b) / (2a):\nx = -(%d) / (2 * (%d))", b, a);
+
+            } else {
+                D_analysis_step_string = "The D of the equation is lower than 0. There are no real solutions\n";
+
+                solutions["solutions_count"] = 0;
+
+                sprintf(calculation_solutions_step_string, "");
+
+            }
+
+            exporter -> write_text_to_temp_file(D_analysis_step_string);
+            exporter -> write_text_to_temp_file(calculation_solutions_step_string);
+
+            
+            return solutions;      
         }
         
         void export_instructions() {
@@ -144,6 +175,7 @@ int main()
     InstructionsExporterImpl* exporter = new InstructionsExporterImpl();
     EquationSolver solver(a, b, c, exporter);
 
-    map<string, int> solutions = solver.solve();
+    map<string, float> solutions = solver.solve();
+    cout << solutions["solutions_count"]  << solutions["x1"]  << solutions["x2"] << endl;
     solver.export_instructions();
 }
