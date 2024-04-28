@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <map>
+#include <cmath>
 #include <ctime>
 #include <fstream>
 #include <filesystem>
@@ -9,6 +11,8 @@ using namespace std;
 
 class InstructionsExporter {
     public:
+        virtual void write_text_to_temp_file(string text) {};
+
         virtual void export_instructions() {};
 };
 
@@ -19,26 +23,48 @@ class InstructionsExporterImpl : public InstructionsExporter {
             time_t current_time = time({});
             char current_time_string[size("yyyy_mm_ddThh_mm_ss")];
             strftime(data(current_time_string), size(current_time_string), "%Y_%m_%dT%H%M%S", gmtime(&current_time));
+
             return string(current_time_string) + ".txt";
         }
 
-        void write_text_to_file(string filename) {
-            if (!filesystem::exists(instuctions_directory)) {
-                filesystem::create_directory(instuctions_directory);
+    public:
+        const string instructions_directory = "./instructions";
+        const string temp_filename = "cucu.txt";
+
+        void write_text_to_temp_file(string text) override {
+            if (!filesystem::exists(instructions_directory)) {
+                filesystem::create_directory(instructions_directory);
             }
             
             ofstream file;
-            file.open(instuctions_directory + "/" + filename);
-            file << "instructions\n";
+            file.open(instructions_directory + "/" + temp_filename);
+            file << text;
             file.close();
         }
 
-    public:
-        const string instuctions_directory = "./instructions";
-
         void export_instructions() override {
-            write_text_to_file(generate_file_name());
-        };
+            if (!filesystem::exists(instructions_directory)) {
+                filesystem::create_directory(instructions_directory);
+            }
+
+            string instructions_filename = instructions_directory + "/" + generate_file_name();
+            ifstream temp_file { instructions_directory + "/" + temp_filename };
+            ofstream instructions_file { instructions_filename };
+
+            if (temp_file && instructions_file) {
+                string line;
+                while (getline(temp_file, line)) {
+                    instructions_file << line;
+                }
+
+                cout << "Export finished to " + instructions_filename << endl;
+            } else {
+                cout << "Can't read the files" << endl;
+            }
+
+            temp_file.close();
+            instructions_file.close();
+        }
 };
 
 
@@ -54,8 +80,46 @@ class EquationSolver {
             this->exporter = exporter;
         }
 
-        void test_method() {
-            exporter->export_instructions();
+        map<string, int> solve() {
+            char buff[100];
+            if (a == 0 && b == 0 && c == 0) {
+                sprintf(buff, "Your equation is: 0 = 0");
+            } else if (a == 0 && b == 0) {
+                sprintf(buff, "Your equation is: %d = 0", c);
+            } else if (a == 0 && c == 0) {
+                sprintf(buff, "Your equation is: %dx = 0", b);
+            } else if (b == 0 && c == 0) {
+                sprintf(buff, "Your equation is: %dx² = 0", a);
+            } else if (a == 0) {
+                sprintf(buff, "Your equation is: %dx + %d = 0", b, c);
+            } else if (b == 0) {
+                sprintf(buff, "Your equation is: %dx² + %d = 0", a, c);
+            } else if (c == 0) {
+                sprintf(buff, "Your equation is: %dx² + %dx = 0", a, b);
+            } else  {
+                sprintf(buff, "Your equation is: %dx² + %dx + %d = 0", a, b, c);
+            }
+
+            cout << buff << endl;
+            exporter -> write_text_to_temp_file(buff);
+            
+
+            int D = pow(b, 2) - a * c;
+
+            if (D > 0) {
+
+            } else if (D == 0) {
+
+            } else {
+
+            }
+
+            map<string, int> result;
+            return result;      
+        }
+        
+        void export_instructions() {
+            exporter -> export_instructions();
         }
 };
 
@@ -68,11 +132,10 @@ int main()
     cout << "Enter the coefficients of the equation in format: a b c: ";
     cin >> a >> b >> c;
 
-    char buff[100];
-    sprintf(buff, "Your equation is: %dx² + %dx + %d = 0", a, b, c);
-    cout << buff << endl;
 
     InstructionsExporterImpl* exporter = new InstructionsExporterImpl();
-    EquationSolver solver(1, 2, -3, exporter);
-    solver.test_method();
+    EquationSolver solver(a, b, c, exporter);
+
+    map<string, int> solutions = solver.solve();
+    solver.export_instructions();
 }
