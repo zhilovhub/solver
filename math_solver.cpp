@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <limits>
 #include <cassert>
+#include <cstdio>
 
 using namespace std;
 
@@ -31,17 +32,15 @@ class InstructionsExporterImpl : public InstructionsExporter {
 
     public:
         const string instructions_directory = "./instructions";
-        const string temp_filename = "cucu.txt";
+
+        FILE* temp_file;
+
+        InstructionsExporterImpl() {
+            temp_file = tmpfile();
+        }
 
         void write_text_to_temp_file(string text) override {
-            if (!filesystem::exists(instructions_directory)) {
-                filesystem::create_directory(instructions_directory);
-            }
-            
-            ofstream file;
-            file.open(instructions_directory + "/" + temp_filename, ios_base::app);
-            file << text;
-            file.close();
+            fputs(text.c_str(), temp_file);
         }
 
         void export_instructions() override {
@@ -50,21 +49,19 @@ class InstructionsExporterImpl : public InstructionsExporter {
             }
 
             string instructions_filename = instructions_directory + "/" + generate_file_name();
-            ifstream temp_file { instructions_directory + "/" + temp_filename };
             ofstream instructions_file { instructions_filename };
 
+            rewind(temp_file);
+            char buffer[1024];
             if (temp_file && instructions_file) {
-                string line;
-                while (getline(temp_file, line)) {
-                    instructions_file << line;
+                while (fgets(buffer, sizeof buffer, temp_file) != nullptr) {
+                    instructions_file << buffer;
                 }
-
                 cout << "Export finished to " + instructions_filename << endl;
             } else {
                 cout << "Can't read the files" << endl;
             }
 
-            temp_file.close();
             instructions_file.close();
         }
 };
@@ -109,13 +106,13 @@ class EquationSolver {
 
             if (a == 0 && b == 0 && c == 0) {
                 solutions["solutions_count"] = numeric_limits<float>::infinity();
-                cout << "There are infinity solutions" << endl;
+                exporter->write_text_to_temp_file("There are infinity solutions\n");
 
                 return solutions;
             } else if (a == 0) {
                 if (b == 0) {
                     solutions["solutions_count"] = 0;
-                    cout << "There are no real solutions" << endl;
+                    exporter->write_text_to_temp_file("There are no real solutions\n");
 
                     return solutions;
                 }
@@ -293,6 +290,11 @@ int main()
     }
 
 
+    bool need_calculation;
+    cout << "\nDo you need calculation details? [1/0]: ";
+    cin >> need_calculation;
 
-    // solver.export_instructions();
+    if (need_calculation == true) {
+        solver.export_instructions();
+    }
 }
