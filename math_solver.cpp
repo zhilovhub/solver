@@ -37,7 +37,7 @@ class InstructionsExporterImpl : public InstructionsExporter {
             }
             
             ofstream file;
-            file.open(instructions_directory + "/" + temp_filename);
+            file.open(instructions_directory + "/" + temp_filename, ios_base::app);
             file << text;
             file.close();
         }
@@ -104,15 +104,23 @@ class EquationSolver {
             exporter -> write_text_to_temp_file(buff);
             
 
-            int D = pow(b, 2) - a * c;
+            int D = pow(b, 2) - 4 * a * c;
 
+            char calculating_D_step_string[100];
+            sprintf(calculating_D_step_string, "Calculation Discriminant by D = b² - 4ac:\nD = (%d)² - 4 * (%d) * (%d) = %d", b, a, c, D);
+
+            cout << calculating_D_step_string << endl;
+            exporter -> write_text_to_temp_file(calculating_D_step_string);
+
+            string D_analysis_step;
             if (D > 0) {
-
+                D_analysis_step = "The D of the equation is greater than 0. There are two solutions\n";
             } else if (D == 0) {
-
+                D_analysis_step = "The D of the equation equals 0. There is one solution\n";
             } else {
-
+                D_analysis_step = "The D of the equation is lower than 0. There are no real solutions\n";
             }
+            exporter -> write_text_to_temp_file(D_analysis_step);
 
             map<string, int> result;
             return result;      
