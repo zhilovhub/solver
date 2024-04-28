@@ -107,18 +107,22 @@ class EquationSolver {
 
             if (a == 0 && b == 0 && c == 0) {
                 solutions["solutions_count"] = numeric_limits<float>::infinity();
-                exporter->write_text_to_temp_file("There are infinity solutions\n");
+                exporter->write_text_to_temp_file("There are infinity solutions because 0 = 0 is always true\n");
 
                 return solutions;
             } else if (a == 0) {
                 if (b == 0) {
                     solutions["solutions_count"] = 0;
-                    exporter->write_text_to_temp_file("There are no real solutions\n");
+                    exporter->write_text_to_temp_file("There are no real solutions because non-zero doesn't equal zero\n");
 
                     return solutions;
                 }
                 
                 float x = -c / b;
+
+                char calculating_one_solution_step_string[300];
+                sprintf(calculating_one_solution_step_string, "There is one solution that is calculated by x = -c / b\nx = -((%.3f) / (%.3f)) = %.3f\n\n", c, b, x);
+                exporter->write_text_to_temp_file(calculating_one_solution_step_string);
 
                 solutions["solutions_count"] = 1;
                 solutions["x"] = x;
@@ -251,6 +255,7 @@ void testEquationSolver() {
 
 int main()
 {
+    // uncomment it if you want to test solver
     // testEquationSolver();
 
     float a, b, c;
